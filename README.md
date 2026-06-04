@@ -1,5 +1,7 @@
 # Lab 2 — Wireshark & Network Traffic Analysis
 
+https://www.loom.com/share/b34673a98e07488db28ccc59f2d61414
+
 > Hands-on packet capture and protocol analysis using Wireshark. Captures and dissects DNS lookups, the TCP three-way handshake, cleartext HTTP credentials, and full TCP stream reassembly — the foundational skill set behind network troubleshooting, SOC analysis, and cloud network forensics.
 
 ![Tool](https://img.shields.io/badge/Tool-Wireshark-1679A7)
