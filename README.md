@@ -1,6 +1,4 @@
-# Lab 2 — Wireshark & Network Traffic Analysis 
-
-Video Walkthrough - https://www.loom.com/share/b34673a98e07488db28ccc59f2d61414
+# Lab 2 — Wireshark & Network Traffic Analysis
 
 > Hands-on packet capture and protocol analysis using Wireshark. Captures and dissects DNS lookups, the TCP three-way handshake, cleartext HTTP credentials, and full TCP stream reassembly — the foundational skill set behind network troubleshooting, SOC analysis, and cloud network forensics.
 
@@ -231,6 +229,9 @@ Work through these in order; each builds on the last.
 
 > **What you saw:** Your machine asked for the A record, the server replied with an IP, and your browser used it to connect. This invisible lookup precedes every website visit, API call, and email. In the real world, unexpected DNS queries to unusual domains are often the first sign of malware calling home to a command-and-control server.
 
+![Wireshark filtered on dns, beside a Command Prompt running nslookup google.com](screenshots/exercise-a-dns-lookup.png)
+*Figure 2 — `nslookup google.com` run in the terminal (left) generates the DNS traffic captured in Wireshark (right). The `dns` filter isolates the query and response packets; the resolved address `142.251.32.14` matches in both windows.*
+
 #### Exercise B — Watch the TCP Three-Way Handshake
 
 1. Start a capture.
@@ -247,6 +248,9 @@ Work through these in order; each builds on the last.
 
 > A SYN with no SYN-ACK → connection refused or server unreachable. A RST → connection forcibly closed. These two patterns are the most common things engineers look for when diagnosing connectivity.
 
+![Wireshark showing the SYN, SYN-ACK, ACK sequence filtered by tcp and ip.addr](screenshots/exercise-b-tcp-handshake.png)
+*Figure 3 — The three-way handshake isolated with `tcp and ip.addr == 54.82.22.214`. Packets 4798–4800 show the `[SYN]` → `[SYN, ACK]` → `[ACK]` sequence that establishes the connection before any data (the `GET /login.html` request) is sent.*
+
 #### Exercise C — Spot Cleartext Credentials (HTTP)
 
 > ⚠️ **Educational use only.** Only capture on networks and against systems you own or have explicit written permission to analyse.
@@ -261,6 +265,9 @@ Work through these in order; each builds on the last.
 
 > This is why every login form must use HTTPS. Without TLS, anyone on the network path — your ISP, a coffee-shop router, a man-in-the-middle — can read credentials exactly as typed. Wireshark is how security teams prove this to developers who resist adding HTTPS.
 
+![Wireshark showing an HTTP POST with username and password visible in plaintext](screenshots/exercise-c-http-cleartext.png)
+*Figure 4 — A `POST /signin.html` request filtered with `http.request.method == POST`. The expanded **HTML Form URL Encoded** layer exposes `user_login` and `user_password` in cleartext — the entire point of the exercise, and the reason HTTPS is mandatory for any form handling credentials. (Test values only — no real credentials were used.)*
+
 #### Exercise D — Follow a Full TCP Stream
 
 1. Capture HTTP traffic by visiting an HTTP site.
@@ -270,6 +277,9 @@ Work through these in order; each builds on the last.
 5. **Red** = your browser's request · **Blue** = the server's response.
 
 > This is how incident responders reconstruct a network event. Individual packets are fragments; the stream view shows the complete conversation — what data was transferred, what commands were sent, and how the server responded.
+
+![Wireshark Follow TCP Stream view showing a full HTTP request and 200 OK response](screenshots/exercise-d-tcp-stream.png)
+*Figure 5 — **Follow → TCP Stream** reassembles the individual packets into one readable conversation: the browser's `GET /online-banking.html` request and headers, followed by the server's `HTTP/1.1 200 OK` response and the HTML body. This is the view incident responders use to understand exactly what was exchanged.*
 
 ### Step 5 — Save & Export Captures
 
@@ -313,6 +323,11 @@ tshark -i eth0 -w capture.pcapng -c 1000
 .
 ├── README.md
 ├── architecture.png            # Static copy of the capture-flow diagram
+├── screenshots/                # Annotated proof of each exercise
+│   ├── exercise-a-dns-lookup.png
+│   ├── exercise-b-tcp-handshake.png
+│   ├── exercise-c-http-cleartext.png
+│   └── exercise-d-tcp-stream.png
 └── captures/
     ├── dns-lookup.pcapng        # Exercise A — DNS query + response
     ├── tcp-handshake.pcapng     # Exercise B — SYN / SYN-ACK / ACK
